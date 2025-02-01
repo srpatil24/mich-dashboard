@@ -1,5 +1,5 @@
 const CANVAS_API_TOKEN = '8396~WAGHVha388TGKAfJEJcrnG7rZwE6KufwFhtQtXTfTmJT8mycec878PtUkXZe3Dxh';
-const CANVAS_API_BASE_URL = 'https://canvas.wisc.edu';
+const CANVAS_API_BASE_URL = 'https://umich.instructure.com/';
 
 // Step 1: Fetch Courses
 async function getCourses() {

@@ -1,6 +1,6 @@
 import { Text, View } from "@/components/Themed";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { RefreshControl, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import React, { useState, useEffect } from "react";
@@ -54,21 +54,46 @@ interface Event {
 
 export default function EventsScreen() {
 	const [events, setEvents] = useState<Event[]>([]);
+	const [refreshing, setRefreshing] = React.useState(false);
+
+	async function fetchEvents() {
+		console.log("Fetching events...");
+		try {
+			console.log("Now trying to fetch events...");
+			const todoItems = await getEvents();
+			// console.log("Fetched events:", todoItems);
+			console.log("Setting events...");
+			setEvents(todoItems);
+			console.log("Events set!");
+		} catch (error) {
+			console.error("Error fetching events:", error);
+		}
+	}
+
+	const onRefresh = React.useCallback(async () => {
+		setRefreshing(true);
+		console.log("Refreshing events...");
+		await fetchEvents();
+		setTimeout(() => {
+		  setRefreshing(false);
+		}, 2000);
+	  }, []);
 
 	useEffect(() => {
-		async function fetchEvents() {
-			try {
-				const todoItems = await getEvents();
-				setEvents(todoItems);
-			} catch (error) {
-				console.error("Error fetching events:", error);
-			}
-		}
+		// async function fetchEvents() {
+		// 	try {
+		// 		const todoItems = await getEvents();
+		// 		setEvents(todoItems);
+		// 	} catch (error) {
+		// 		console.error("Error fetching events:", error);
+		// 	}
+		// }
 		fetchEvents();
 	}, []);
 
 	return (
-		<ScrollView>
+		<ScrollView
+		refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
 			{events.map((event, index) => (
 				<TouchableOpacity key={index}>
 					<EventContainer event={event} />

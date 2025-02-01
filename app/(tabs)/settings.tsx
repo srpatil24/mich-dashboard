@@ -2,18 +2,29 @@ import { Button, StyleSheet, TextInput } from "react-native";
 import { Text, View } from "@/components/Themed";
 import * as Creds from "@/api/creds";
 import { useEffect, useState } from "react";
+import { setCanvasApiToken } from "@/api/globalSettings";
 
 export default function SettingsScreen() {
 	const [canvasToken, setCanvasToken] = useState("");
 	useEffect(() => {
 		Creds.getValueFor("canvas.access-token").then((token) => {
-			if (token) setCanvasToken(token);
+			if (token){ 
+				setCanvasToken(token);
+				setCanvasApiToken(token);
+		}
 		});
 	}, []);
 
 	useEffect(() => {
 		Creds.save("canvas.access-token", canvasToken);
+		setCanvasApiToken(canvasToken);
 	}, [canvasToken]);
+
+	function updateToken() {
+		Creds.save("canvas.access-token", canvasToken);
+		console.log("setting canvas api token to", canvasToken);
+		setCanvasApiToken(canvasToken);
+	}
 
 	return (
 		<View style={styles.container}>
@@ -26,7 +37,7 @@ export default function SettingsScreen() {
 				placeholder="Canvas access token"
 				placeholderTextColor="white"
 			/>
-			<Button title="Validate" color="red" />
+			<Button title="Validate" color="red" onPress={updateToken}/>
 		</View>
 	);
 }

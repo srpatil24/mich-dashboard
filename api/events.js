@@ -1,7 +1,7 @@
 import ICAL from 'ical.js';  // Adjust the path as necessary
 
 // URL of the ICS file
-const url = 'https://today.wisc.edu/events.ics';
+const url = 'https://msu.campuslabs.com/engage/events.ics';
 
 async function getEvents() {
     try {

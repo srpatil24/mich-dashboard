@@ -1,11 +1,12 @@
 // import ical from 'node-ical';
 
 // URL of the ICS file
-const url = 'https://today.wisc.edu/events.ics';
+url = 'https://msu.campuslabs.com/engage/events.ics';
 
 async function getEvents() {
     try {
         // Fetch the ICS data from the URL
+        console.log('Fetching ICS file from:', url);
         const response = await fetch(url);
         const icsData = await response.text();
 

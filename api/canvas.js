@@ -1,8 +1,10 @@
-const CANVAS_API_TOKEN = '8396~WAGHVha388TGKAfJEJcrnG7rZwE6KufwFhtQtXTfTmJT8mycec878PtUkXZe3Dxh';
-const CANVAS_API_BASE_URL = 'https://canvas.wisc.edu';
+import { getCanvasApiToken } from "./globalSettings.ts";
+CANVAS_API_TOKEN = 'no token';
+const CANVAS_API_BASE_URL = 'https://umich.instructure.com/';
 
 // Step 1: Fetch Todo Items
 async function getTodoItems() {
+    CANVAS_API_TOKEN = getCanvasApiToken();
     const response = await fetch(`${CANVAS_API_BASE_URL}/api/v1/users/self/todo`, {
         headers: {
             'Authorization': `Bearer ${CANVAS_API_TOKEN}`,

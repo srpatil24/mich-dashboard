@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import * as Location from 'expo-location';
 
@@ -170,6 +170,7 @@ async function getRouteToClass(userLat: number, userLong: number, courseLat: num
 
 export default function TabOneScreen() {
   const colorScheme = useColorScheme();
+  const [refreshing, setRefreshing] = React.useState(false);
 
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
@@ -179,20 +180,30 @@ export default function TabOneScreen() {
     routes?: any[]
   } | null>(null);
 
+  async function fetchEvents() {
+    console.log('Fetching events...');
+    try {
+      const todoItems = await getTodoItems();
+      const processedItems = await processTodoItems(todoItems);
+      setEvents(processedItems);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    }
+  }
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    fetchEvents();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
   useEffect(() => {
     getWeather().then(setWeatherData);
   }, []);
 
   useEffect(() => {
-    async function fetchEvents() {
-      try {
-        const todoItems = await getTodoItems();
-        const processedItems = await processTodoItems(todoItems);
-        setEvents(processedItems);
-      } catch (error) {
-        console.error('Error fetching events:', error);
-      }
-    }
     const interval = setInterval(() => fetchEvents(), 60000);
     return () => clearInterval(interval);
   }, [events]);
@@ -207,10 +218,14 @@ export default function TabOneScreen() {
           return;
         }
 
+        console.log("Attempting to get course info...");
+
         // Get course information
         const courses = await getCourses();
         const processedCourses = await processCourses(courses);
         const courseInfos: CourseInfo[] = [];
+
+        console.log("Looping through courses...");
 
         for (const course of processedCourses) {
           try {
@@ -247,7 +262,9 @@ export default function TabOneScreen() {
 
   return (
     <View>
-      <ScrollView>
+      <ScrollView
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <LinearGradient
           colors={["#e0e5ec", "#ffffff"]}
           start={[0, 0]}
