@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     // height: "100%",
     marginBottom: 10,
     // padding: 10,
-    backgroundColor: "red",
+    backgroundColor: "green",
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
     // height: 'auto' removed
