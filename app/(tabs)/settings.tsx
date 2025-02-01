@@ -28,7 +28,7 @@ export default function SettingsScreen() {
 
 	return (
 		<View style={styles.container}>
-			<Text>Login to show your course schedule</Text>
+			<Text>Enter your your canvas api token</Text>
 			<TextInput
 				style={styles.input}
 				value={canvasToken}
@@ -37,7 +37,7 @@ export default function SettingsScreen() {
 				placeholder="Canvas access token"
 				placeholderTextColor="white"
 			/>
-			<Button title="Validate" color="red" onPress={updateToken}/>
+			<Button title="Set Token" color="red" onPress={updateToken}/>
 		</View>
 	);
 }
