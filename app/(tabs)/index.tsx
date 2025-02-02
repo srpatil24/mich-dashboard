@@ -111,6 +111,8 @@ async function getWeather() {
     return { lat: 43.074302, long: -89.400024 };
   });
 
+  console.log("Location:", location);
+
   return getWeatherData(location.lat, location.long).catch((error) => {
     console.error("Error fetching weather:", error);
     return null;
@@ -295,7 +297,7 @@ export default function TabOneScreen() {
           >
             <Text style={styles.currTemperature}>
               {weatherData
-                ? weatherData.current.apparentTemperature
+                ? weatherData.current.temperature2m
                 : "Loading temperature..."}
               <Text style={styles.degreeSymbol}>°F</Text>
             </Text>
