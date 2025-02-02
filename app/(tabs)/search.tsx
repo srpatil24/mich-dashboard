@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import {usingCanvasMode} from "@/api/globalSettings";
+import uofmData from "./../../assets/data/UofM_Grade_Distributions.js";
+import msuData from "./../../assets/data/MSU_Avg_Grade_Distributions.js";
 
 interface CourseData {
   courseName: string;
@@ -16,14 +19,6 @@ export default function SearchScreen() {
   const [department, setDepartment] = useState('');
   const [results, setResults] = useState<CourseData[]>([]);
 
-  // Simulated CSV data for example
-  const dataCsv = `courseName,instructor,department,courseNum
-Intro to AI,Bob Joe,CS,582
-Algebra,Sam Samson,MATH,634
-React Basics,Johnny Test,CS,823
-Database Systems,Bill the Hobo,IT,112
-English Lit,Kanye West,HUM,101
-`;
 
   function parseCsv(csvString: string) {
     const lines = csvString.trim().split('\n');
@@ -38,10 +33,49 @@ English Lit,Kanye West,HUM,101
     });
   }
 
-  function handleSearch() {
-    let parsedData = parseCsv(dataCsv);
 
-    setResults(parsedData);
+  // TODO: Implement search functionality
+  async function handleSearch() {
+    // let [{ localUri }] = usingCanvasMode()
+    // ? await Asset.loadAsync(require('./../../assets/data/UofM_Grade_Distributions.csv'))
+    // : await Asset.loadAsync(require('./../../assets/data/MSU_Avg_Grade_Distributions.csv'))
+    const csvString = usingCanvasMode() ? uofmData : msuData;
+
+    const parsedData = parseCsv(csvString);
+
+    console.log('parsedData: ', parsedData);
+
+    console.log("now going to filter...");
+
+    const filtered = parsedData.filter((item: any) => {
+        const courseTitle = item['Crse Descr'] || item['COURSE_TITLE_DESCR'] || '';
+        const passName =
+          courseName === '' ||
+          courseTitle.toLowerCase().includes(courseName.toLowerCase());
+        const passDept =
+          department === '' ||
+          (item['SUBJECT'] || '').toLowerCase() === department.toLowerCase();
+        const itemGpa = parseFloat(item['Avg GPA']) || 0;
+        const passGpaMin = gpaMin === '' || itemGpa >= parseFloat(gpaMin);
+        const passGpaMax = gpaMax === '' || itemGpa <= parseFloat(gpaMax);
+        return passName && passDept && passGpaMin && passGpaMax;
+      });
+
+    console.log('filtered: ', filtered);
+
+    console.log("now going to sort...");
+
+      const sorted = filtered.sort((a: any, b: any) => {
+        const gpaA = parseFloat(a['Avg GPA']) || 0;
+        const gpaB = parseFloat(b['Avg GPA']) || 0;
+        return sortOrder === 'asc' ? gpaA - gpaB : gpaB - gpaA;
+      });
+
+    console.log("now going to set results...");
+
+    console.log('sorted: ', sorted);
+
+    setResults(sorted);
   }
 
   return (
@@ -87,14 +121,24 @@ English Lit,Kanye West,HUM,101
         <Text style={styles.searchButtonText}>Search</Text>
       </TouchableOpacity>
       <FlatList
-        data={results}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.resultItem}>
-            <Text style={styles.resultText}>{item.courseName}</Text>
-          </View>
-        )}
-      />
+  data={results}
+  keyExtractor={(item, index) => index.toString()}
+  renderItem={({ item }) => {
+    const courseTitle = item['Crse Descr'] || item['COURSE_TITLE_DESCR'] || '';
+    const displaySubjectId = (item['SUBJECT'] || '') + ' ' + (item['Course ID'] || '');
+    return (
+      <View style={styles.resultBox}>
+        <View>
+          <Text style={styles.resultCourseId}>{displaySubjectId}</Text>
+          <Text style={styles.resultCourseTitle}>{courseTitle}</Text>
+        </View>
+        <Text style={styles.resultGPA}>
+          {parseFloat(item['Avg GPA'] || 0).toFixed(2)}
+        </Text>
+      </View>
+    );
+  }}
+/>
     </View>
   );
 }
@@ -103,6 +147,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+  },
+  resultBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 8,
+  },
+  resultCourseId: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  resultCourseTitle: {
+    fontSize: 14,
+    color: '#666',
+  },
+  resultGPA: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
   },
   title: {
     fontSize: 24,
