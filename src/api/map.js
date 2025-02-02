@@ -42,7 +42,6 @@ async function getRoutes(originLatitude, originLongitude, destinationLatitude, d
         throw error; // Re-throw the error for handling in the calling function
     }
 
-    console.log(routes);
     return routes;
 }
 

@@ -35,7 +35,6 @@ apiClient.interceptors.request.use(
 const testWeather = async () => {
   try {
     const data = await getWeatherData();
-    console.log('Weather test:', data);
     return data;
   } catch (error) {
     console.error('Weather test failed:', error);
@@ -46,7 +45,6 @@ const testWeather = async () => {
 const testRoutes = async () => {
   try {
     const data = await getRoutes();
-    console.log('Routes test:', data);
     return data;
   } catch (error) {
     console.error('Routes test failed:', error);
@@ -57,7 +55,6 @@ const testRoutes = async () => {
 const testEvents = async () => {
   try {
     const data = await getEvents();
-    console.log('Events test:', data);
     return data;
   } catch (error) {
     console.error('Events test failed:', error);
@@ -69,7 +66,6 @@ const testTodos = async () => {
   try {
     const items = await getTodoItems();
     const processed = await processTodoItems(items);
-    console.log('Todos test:', processed);
     return processed;
   } catch (error) {
     console.error('Todos test failed:', error);
@@ -81,7 +77,6 @@ const testCourses = async () => {
   try {
     const courses = await getCourses();
     const processed = await processCourses(courses);
-    console.log('Courses test:', processed);
     return processed;
   } catch (error) {
     console.error('Courses test failed:', error);
@@ -92,7 +87,6 @@ const testCourses = async () => {
 const testCourseInfo = async () => {
   try {
     const info = await getCourseInfo('COMP SCI 544');
-    console.log('Course info test:', info);
     return info;
   } catch (error) {
     console.error('Course info test failed:', error);
@@ -119,8 +113,6 @@ const testAllCourses = async () => {
       }
     }
 
-    console.log('Course Latitude:', courseInfos[0].weeklyMeetings[0].latitude);
-    console.log('Course Longitude:', courseInfos[0].weeklyMeetings[0].longitude);
     return courseInfos;
   } catch (error) {
     console.error('Courses test failed:', error);

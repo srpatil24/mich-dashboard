@@ -59,7 +59,6 @@ export default function SettingsScreen() {
 	function updateToken() {
 		clearEvents();
 		Creds.save("canvas.access-token", canvasToken);
-		console.log("setting canvas api token to", canvasToken);
 		setCanvasApiToken(canvasToken);
 	}
 
@@ -74,7 +73,6 @@ export default function SettingsScreen() {
 
 	const handleWebViewNavigation = (event: WebViewNavigationEvent) => {
 		const { url } = event;
-		console.log("Navigating to:", url);
 		// For debugging/demo, do not close the WebView automatically.
 		// Uncomment the following lines to enable auto-closing after login:
 		// if (url.includes("/d2l/home")) {
@@ -85,7 +83,6 @@ export default function SettingsScreen() {
 
 
 	const handleWebViewMessage = ({ nativeEvent: { data } }: WebViewMessageEvent) => {
-		console.log("Message from WebView:", data);
 		if (data === "CLOSE_WEBVIEW") {
 			// Close the WebView by updating state
 			setShowWebView(false);

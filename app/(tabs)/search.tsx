@@ -43,9 +43,7 @@ export default function SearchScreen() {
 
     const parsedData = parseCsv(csvString);
 
-    console.log('parsedData: ', parsedData);
 
-    console.log("now going to filter...");
 
     const filtered = parsedData.filter((item: any) => {
         const courseTitle = item['Crse Descr'] || item['COURSE_TITLE_DESCR'] || '';
@@ -56,14 +54,12 @@ export default function SearchScreen() {
           department === '' ||
           (item['SUBJECT'] || '').toLowerCase() === department.toLowerCase();
         const itemGpa = parseFloat(item['Avg GPA']) || 0;
-        const passGpaMin = gpaMin === '' || itemGpa >= parseFloat(gpaMin);
-        const passGpaMax = gpaMax === '' || itemGpa <= parseFloat(gpaMax);
+        const passGpaMin = (gpaMin === '' && itemGpa <= 4.0) || itemGpa >= Math.max(parseFloat(gpaMin), 0.0);
+        const passGpaMax = (gpaMax === '' && itemGpa >= 0.0) || itemGpa <= Math.min(parseFloat(gpaMax), 4.0);
         return passName && passDept && passGpaMin && passGpaMax;
       });
 
-    console.log('filtered: ', filtered);
 
-    console.log("now going to sort...");
 
       const sorted = filtered.sort((a: any, b: any) => {
         const gpaA = parseFloat(a['Avg GPA']) || 0;
@@ -71,9 +67,7 @@ export default function SearchScreen() {
         return sortOrder === 'asc' ? gpaA - gpaB : gpaB - gpaA;
       });
 
-    console.log("now going to set results...");
 
-    console.log('sorted: ', sorted);
 
     setResults(sorted);
   }

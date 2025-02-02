@@ -115,7 +115,6 @@ async function getWeather() {
     return { lat: 43.074302, long: -89.400024 };
   });
 
-  console.log("Location:", location);
 
   return getWeatherData(location.lat, location.long).catch((error) => {
     console.error("Error fetching weather:", error);
@@ -227,7 +226,6 @@ export default function TabOneScreen() {
   const d2lFormattedEvents: Event[] = eventsText ? parseD2LEvents(eventsText) : [];
 
   async function fetchEvents() {
-    console.log('Fetching events...');
     try {
       const todoItems = await getTodoItems();
       const processedItems = await processTodoItems(todoItems);
@@ -264,14 +262,12 @@ export default function TabOneScreen() {
           return;
         }
 
-        console.log("Attempting to get course info...");
 
         // Get course information
         const courses = await getCourses();
         const processedCourses = await processCourses(courses);
         const courseInfos: CourseInfo[] = [];
 
-        console.log("Looping through courses...");
 
         for (const course of processedCourses) {
           try {

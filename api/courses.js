@@ -5,9 +5,7 @@ const CANVAS_API_BASE_URL = 'https://umich.instructure.com';
 // Step 1: Fetch Courses
 async function getCourses() {
     
-    console.log("Getting courses response...");
     CANVAS_API_TOKEN = getCanvasApiToken();
-    console.log("API Token: ", CANVAS_API_TOKEN);
     const response = await fetch(`${CANVAS_API_BASE_URL}/api/v1/courses?enrollment_state=active&include[]=sections`, {
         headers: {
             'Authorization': `Bearer ${CANVAS_API_TOKEN}`,
@@ -21,7 +19,6 @@ async function getCourses() {
 
     const courses = await response.json();
     return Array.isArray(courses) ? courses : [courses];
-    console.log("Courses response: ", courses);
 }
 
 async function getSubjectsMap() {

@@ -57,14 +57,9 @@ export default function EventsScreen() {
 	const [refreshing, setRefreshing] = React.useState(false);
 
 	async function fetchEvents() {
-		console.log("Fetching events...");
 		try {
-			console.log("Now trying to fetch events...");
 			const todoItems = await getEvents();
-			// console.log("Fetched events:", todoItems);
-			console.log("Setting events...");
 			setEvents(todoItems);
-			console.log("Events set!");
 		} catch (error) {
 			console.error("Error fetching events:", error);
 		}
@@ -72,7 +67,6 @@ export default function EventsScreen() {
 
 	const onRefresh = React.useCallback(async () => {
 		setRefreshing(true);
-		console.log("Refreshing events...");
 		await fetchEvents();
 		setTimeout(() => {
 		  setRefreshing(false);
