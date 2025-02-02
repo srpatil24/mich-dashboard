@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import * as Location from 'expo-location';
@@ -17,6 +17,7 @@ import { getCourses, processCourses } from "@/api/courses.js";
 import { getCourseInfo } from "@/api/courseInfo.js";
 
 import { EventContext } from "@/app/(tabs)/EventContext";
+import { usingCanvasMode } from "@/api/globalSettings";
 
 
 let sampleEventsJson = [
@@ -203,12 +204,19 @@ async function getRouteToClass(userLat: number, userLong: number, courseLat: num
   }
 }
 
+const setEventsRef = { current: (events: Event[]) => {} };
+
+export function clearEvents() {
+  setEventsRef.current([]);
+}
+
 export default function TabOneScreen() {
   const colorScheme = useColorScheme();
   const [refreshing, setRefreshing] = React.useState(false);
 
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
+  setEventsRef.current = setEvents;
   const [courseLocation, setCourseLocation] = useState<{
     lat: number | 'N/A',
     long: number | 'N/A',
@@ -354,13 +362,13 @@ export default function TabOneScreen() {
         </LinearGradient>
 
         {/* Display D2L Parsed Events */}
-        {d2lFormattedEvents.map((event, idx) => (
+        {!usingCanvasMode() && d2lFormattedEvents.map((event, idx) => (
           <TouchableOpacity key={`d2l-${idx}`} onPress={() => handleEventPress(event)}>
             <EventContainer event={event} />
           </TouchableOpacity>
         ))}
 
-        {events.map((event: Event) => (
+        {usingCanvasMode() && events.map((event: Event) => (
           <TouchableOpacity
             key={event.assignment.name}
             onPress={() => handleEventPress(event)}
@@ -372,6 +380,7 @@ export default function TabOneScreen() {
     </View>
   );
 }
+
 
 // defines container for each event for display
 function EventContainer({ event }: { event: any }) {

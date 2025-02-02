@@ -4,15 +4,34 @@ import { WebView } from "react-native-webview";
 import { Text, View } from "@/components/Themed";
 import * as Creds from "@/api/creds";
 import { useEffect, useState } from "react";
-import { setCanvasApiToken } from "@/api/globalSettings";
+import { setCanvasApiToken, toggleMode } from "@/api/globalSettings";
 import { EventContext } from "@/app/(tabs)/EventContext";
+import { clearEvents } from './index';
 
 
 export default function SettingsScreen() {
 	const [canvasToken, setCanvasToken] = useState("");
 	const [msuLoggedIn, setMsuLoggedIn] = useState(false);
 	const [showWebView, setShowWebView] = useState(false);
+	const [useCanvas, setUseCanvas] = useState(true);
 	const { setEventsText } = useContext(EventContext);
+
+	function toggleCanvas() {
+		setUseCanvas(!useCanvas);
+		toggleMode();
+
+		if(useCanvas){
+			clearEvents();
+			setCanvasToken("");
+			setCanvasApiToken("");
+			Creds.save("canvas.access-token", "");
+
+		} else {
+			clearEvents();
+			setMsuLoggedIn(false);
+			Creds.save("msu.logged-in", "false");
+		}
+	}
 	
 	useEffect(() => {
 		Creds.getValueFor("canvas.access-token").then((token) => {
@@ -27,6 +46,7 @@ export default function SettingsScreen() {
 	}, []);
 
 	useEffect(() => {
+		clearEvents();
 		Creds.save("canvas.access-token", canvasToken);
 		setCanvasApiToken(canvasToken);
 	}, [canvasToken]);
@@ -37,6 +57,7 @@ export default function SettingsScreen() {
 	
 
 	function updateToken() {
+		clearEvents();
 		Creds.save("canvas.access-token", canvasToken);
 		console.log("setting canvas api token to", canvasToken);
 		setCanvasApiToken(canvasToken);
@@ -276,6 +297,9 @@ export default function SettingsScreen() {
 
 	return (
 		<View style={styles.container}>
+
+			<Button title="Toggle Canvas/D2L" onPress={toggleCanvas}/>
+
 			<Text>Enter your your canvas api token</Text>
 			<TextInput
 				style={styles.input}
@@ -284,8 +308,9 @@ export default function SettingsScreen() {
 				keyboardType="visible-password"
 				placeholder="Canvas access token"
 				placeholderTextColor="white"
+				editable={useCanvas}
 			/>
-			<Button title="Set Token" color="red" onPress={updateToken}/>
+			<Button title="Set Token" color="red" onPress={updateToken} disabled={!useCanvas}/>
 			<View style={styles.separator} />
 
 			{/* MSU Login Section */}
@@ -293,7 +318,8 @@ export default function SettingsScreen() {
 			<Button
 			title="Login with MSU"
 			color="green"
-			onPress={() => setShowWebView(true)}
+			onPress={() => {clearEvents(); setShowWebView(true);}}
+			disabled={useCanvas}
 			/>
 			{msuLoggedIn ? (
 			<Text style={styles.tokenText}>MSU Login Successful!</Text>
