@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import * as Location from 'expo-location';
@@ -15,6 +15,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { getCourses, processCourses } from "@/api/courses.js";
 import { getCourseInfo } from "@/api/courseInfo.js";
+
+import { EventContext } from "@/app/(tabs)/EventContext";
+
 
 let sampleEventsJson = [
   {
@@ -147,6 +150,36 @@ interface CourseInfo {
   }[];
 }
 
+function parseD2LEvents(eventsText: string): Event[] {
+  const eventBlocks = eventsText
+    .split(/\n(?=[A-Za-z].* - Due)/)  // Split by lines starting with a title followed by " - Due"
+    .map(block => block.trim())
+    .filter(block => block && !block.startsWith("Events between"));
+
+  const parsedEvents: Event[] = eventBlocks.map(block => {
+    const lines = block.split("\n").map(line => line.trim());
+
+    // Assuming format:
+    // Line 0: Title - Due
+    // Line 1: Due Date (ISO or human-readable)
+    // Line 2: Course Name (context_name)
+    
+    const assignmentName = lines[0]?.replace(" - Due", "") || "Untitled Assignment";
+    const dueDate = lines[1] || "Unknown Due Date";
+    const contextName = lines[2] || "Unknown Course";
+
+    return {
+      assignment: {
+        name: assignmentName,
+        due_at: dueDate,
+      },
+      context_name: contextName,
+    };
+  });
+
+  return parsedEvents;
+}
+
 async function getRouteToClass(userLat: number, userLong: number, courseLat: number | 'N/A', courseLong: number | 'N/A') {
   if (courseLat === 'N/A' || courseLong === 'N/A') {
     console.error('Course location not available');
@@ -179,6 +212,9 @@ export default function TabOneScreen() {
     long: number | 'N/A',
     routes?: any[]
   } | null>(null);
+
+  const { eventsText } = useContext(EventContext);
+  const d2lFormattedEvents: Event[] = eventsText ? parseD2LEvents(eventsText) : [];
 
   async function fetchEvents() {
     console.log('Fetching events...');
@@ -260,6 +296,13 @@ export default function TabOneScreen() {
     fetchCourseLocationAndRoute();
   }, []);
 
+  const extractedEventsArr = eventsText
+    ? eventsText
+        .split(/\n(?=[A-Za-z].* - Due)/)
+        .map(evt => evt.trim())
+        .filter(evt => evt && !evt.startsWith("Events between"))
+    : [];
+
   return (
     <View>
       <ScrollView
@@ -307,6 +350,14 @@ export default function TabOneScreen() {
             </Text>
           </View>
         </LinearGradient>
+
+        {/* Display D2L Parsed Events */}
+        {d2lFormattedEvents.map((event, idx) => (
+          <TouchableOpacity key={`d2l-${idx}`} onPress={() => handleEventPress(event)}>
+            <EventContainer event={event} />
+          </TouchableOpacity>
+        ))}
+
         {events.map((event: Event) => (
           <TouchableOpacity
             key={event.assignment.name}
